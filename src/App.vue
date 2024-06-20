@@ -15,6 +15,11 @@ export default {
     };
   },
   methods: {
+    goTo(url) {
+      console.log(url);
+      this.callApi(url);
+    },
+
     search() {
       const paramsObj = {};
       if (this.selected_featured) {
@@ -170,7 +175,7 @@ export default {
             @change="search"
             name="Select status"
           >
-            <option value="" selected>Featured</option>
+            <option value="" selected>Status</option>
             <option
               v-for="featured in featureds"
               :key="featured.id"
@@ -182,16 +187,28 @@ export default {
         </form>
       </section>
 
-      <section class="photo-gallery">
-        <!-- Placeholder per le foto -->
+      <section class="photo-gallery" v-if="photos">
         <div class="row">
           <div
             class="col-md-4 mb-4"
-            v-for="photo in filteredPhotos"
+            v-for="photo in photos.data"
             :key="photo.id"
           >
             <div class="card">
-              <img :src="photo.url" class="card-img-top" :alt="photo.title" />
+              <div v-if="photo.image_path">
+                <img
+                  class="card-img-top"
+                  :src="
+                    photo.image_path.startsWith('https://')
+                      ? photo.image_path
+                      : base_api_url + '/storage/' + photo.image_path
+                  "
+                  alt=""
+                />
+              </div>
+              <div v-else>
+                <img src="https://picsum.photos/400/200" alt="" />
+              </div>
               <div class="card-body">
                 <h5 class="card-title">{{ photo.title }}</h5>
                 <p class="card-text">{{ photo.description }}</p>
@@ -200,12 +217,13 @@ export default {
           </div>
         </div>
       </section>
+
       <nav aria-label="Page navigation" class="mt-4">
         <ul class="pagination">
           <li
             class="page-item"
             :class="{ disabled: !link.url, active: link.active }"
-            v-for="link in posts.links"
+            v-for="link in photos.links"
           >
             <button
               class="page-link"
@@ -256,7 +274,11 @@ export default {
       </div>
     </div>
   </footer>
-  <!--<div class="p-5 mb-4 bg-light rounded-3">
+</template>
+
+<!-- 
+<template>
+  <div class="p-5 mb-4 bg-light rounded-3">
     <div class="container py-5">
       <h1 class="display-5 fw-bold">Photo</h1>
       <p class="col-md-8 fs-4">Take a look at my amazing photos</p>
@@ -355,9 +377,9 @@ export default {
         </ul>
       </nav>
     </div>
-  </section>-->
+  </section>
 </template>
-
+-->
 <style>
 .img-fluid {
   height: 100%;
